@@ -31,6 +31,8 @@ func NewHttpError(c *fiber.Ctx, code ErrorCode, message string) error {
 		status = fiber.StatusInternalServerError
 	case NOT_FOUND:
 		status = fiber.StatusNotFound
+	case BAD_REQUEST:
+		status = fiber.StatusBadRequest
 	}
 
 	if requestId, ok := c.Locals("requestId").(string); ok {

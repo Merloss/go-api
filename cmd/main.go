@@ -32,5 +32,4 @@ func main() {
 	defer cancel()
 
 	errors.Must(srv.Close(ctx))
-
 }
