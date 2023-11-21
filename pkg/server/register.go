@@ -55,7 +55,7 @@ func (s *Server) register(c *fiber.Ctx) error {
 
 	user.Id = res.InsertedID.(primitive.ObjectID).Hex()
 
-	token, err := auth.Sign(&auth.Payload{Username: body.Username, Roles: []auth.Role{auth.VIEWER}}, []byte(os.Getenv("JWT_SECRET")))
+	token, err := auth.Sign(&auth.Payload{Id: user.Id}, []byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		log.Println(err)
 		return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, "there is an error while signing your token")
