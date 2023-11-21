@@ -35,7 +35,7 @@ func (s *Server) register(c *fiber.Ctx) error {
 	user := new(entities.User)
 	user.Username = body.Username
 	user.Password = string(auth.Hash(body.Password))
-	user.Role = auth.VIEWER
+	user.Roles = []auth.Role{auth.VIEWER}
 
 	res, err := s.users.InsertOne(c.Context(), user)
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *Server) register(c *fiber.Ctx) error {
 
 	user.Id = res.InsertedID.(primitive.ObjectID).Hex()
 
-	token, err := auth.Sign(&auth.Payload{Username: body.Username, Role: auth.VIEWER}, []byte(os.Getenv("JWT_SECRET")))
+	token, err := auth.Sign(&auth.Payload{Username: body.Username, Roles: []auth.Role{auth.VIEWER}}, []byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		log.Println(err)
 		return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, "there is an error while signing your token")

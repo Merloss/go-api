@@ -19,18 +19,18 @@ const (
 type CustomClaim struct {
 	Id       string `json:"id"`
 	Username string `json:"username"`
-	Role     Role   `json:"role"`
+	Roles    []Role `json:"roles"`
 	jwt.RegisteredClaims
 }
 
 type Payload struct {
 	Id       string
 	Username string
-	Role     Role
+	Roles    []Role
 }
 
 func Sign(payload *Payload, secretKey []byte) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim{payload.Username, payload.Id, payload.Role, jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24))}})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim{payload.Username, payload.Id, payload.Roles, jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24))}})
 
 	tokenString, err := token.SignedString(secretKey)
 
