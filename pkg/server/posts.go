@@ -12,19 +12,21 @@ type PostsResponse struct {
 	Posts []entities.Post `json:"posts"`
 }
 
-func (s *Server) getPosts(c *fiber.Ctx) error {
+func (s *Server) getPosts(status entities.PostStatus) fiber.Handler {
+	return func(c *fiber.Ctx) error {
 
-	res, err := s.posts.Find(c.Context(), bson.D{{Key: "status", Value: entities.APPROVED}})
+		res, err := s.posts.Find(c.Context(), bson.D{{Key: "status", Value: status}})
 
-	if err != nil {
-		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
+		if err != nil {
+			return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
+		}
+
+		posts := []entities.Post{}
+
+		if err := res.All(c.Context(), &posts); err != nil {
+			return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, err.Error())
+		}
+
+		return c.JSON(PostsResponse{posts})
 	}
-
-	posts := []entities.Post{}
-
-	if err := res.All(c.Context(), &posts); err != nil {
-		return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, err.Error())
-	}
-
-	return c.JSON(PostsResponse{posts})
 }
