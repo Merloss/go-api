@@ -2,26 +2,41 @@ package server
 
 import (
 	"go-api/pkg/auth"
+	"go-api/pkg/entities"
 	"go-api/pkg/errors"
 	"slices"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (s *Server) roleGuard(roles ...auth.Role) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		user := c.Locals("user").(*jwt.Token)
-		claims := user.Claims.(jwt.MapClaims)
-		r := claims["roles"].([]auth.Role)
+		token := c.Locals("user").(*jwt.Token)
+		claims := token.Claims.(jwt.MapClaims)
+		userId := claims["id"].(string)
 
-		if slices.Contains(r, auth.ADMIN) {
+		oid, err := primitive.ObjectIDFromHex(userId)
+
+		if err != nil {
+			return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
+		}
+
+		res := s.users.FindOne(c.Context(), bson.D{{Key: "_id", Value: oid}})
+		user := &entities.User{}
+		res.Decode(user)
+
+		if slices.Contains(user.Roles, auth.ADMIN) {
 			return c.Next()
 		}
 
-		if !HasAllFields(r, roles) {
+		if !HasAllFields(user.Roles, roles) {
 			return errors.NewHttpError(c, errors.BAD_REQUEST, "Insufficient permission")
 		}
+
+		c.Locals("user", user)
 		return c.Next()
 	}
 }
