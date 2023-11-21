@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -28,6 +29,16 @@ func (s *Server) register(c *fiber.Ctx) error {
 	}
 
 	err := s.validator.Struct(body)
+	if err != nil {
+		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
+	}
+
+	existUserCount, err := s.users.CountDocuments(c.Context(), bson.D{{Key: "username", Value: body.Username}})
+
+	if existUserCount > 0 {
+		return errors.NewHttpError(c, errors.BAD_REQUEST, "username is already taken")
+	}
+
 	if err != nil {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
