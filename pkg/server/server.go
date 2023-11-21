@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	_auth "go-api/pkg/auth"
+	"go-api/pkg/entities"
 	"net"
 	"os"
 
@@ -56,10 +57,11 @@ func (s *Server) init() {
 	auth.Post("/register", s.register)
 	auth.Post("/login", s.login)
 
-	posts.Get("/", jwtware, s.roleGuard(_auth.VIEWER), s.getPosts)
+	posts.Get("/", jwtware, s.roleGuard(_auth.VIEWER), s.getPosts(entities.APPROVED))
 	posts.Post("/", jwtware, s.roleGuard(_auth.EDITOR), s.createPost)
 	posts.Patch("/:id", jwtware, s.roleGuard(_auth.EDITOR), s.editPost)
 	posts.Delete("/:id", jwtware, s.roleGuard(_auth.ADMIN), s.deletePost)
+	posts.Get("/pending", jwtware, s.roleGuard(_auth.ADMIN), s.getPosts(entities.PENDING))
 }
 
 func (s *Server) Listen(port string) error {
