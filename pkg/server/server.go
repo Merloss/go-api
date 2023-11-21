@@ -47,6 +47,7 @@ func (s *Server) init() {
 	api := s.app.Group("/api")
 	auth := api.Group("/auth")
 	posts := api.Group("/posts")
+	users := api.Group("/users")
 
 	jwtware := jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{Key: []byte(os.Getenv("JWT_SECRET"))},
@@ -62,6 +63,8 @@ func (s *Server) init() {
 	posts.Patch("/:id", jwtware, s.roleGuard(_auth.EDITOR), s.editPost)
 	posts.Delete("/:id", jwtware, s.roleGuard(_auth.ADMIN), s.deletePost)
 	posts.Get("/pending", jwtware, s.roleGuard(_auth.ADMIN), s.getPosts(entities.PENDING))
+
+	users.Post("/:id/edit", jwtware, s.roleGuard(_auth.ADMIN), s.editUser)
 }
 
 func (s *Server) Listen(port string) error {
