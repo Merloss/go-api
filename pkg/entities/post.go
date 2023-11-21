@@ -5,6 +5,7 @@ type PostStatus = string
 const (
 	PENDING  PostStatus = "PENDING"
 	APPROVED PostStatus = "APPROVED"
+	REJECTED PostStatus = "REJECTED"
 )
 
 type Post struct {
