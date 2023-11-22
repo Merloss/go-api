@@ -22,6 +22,14 @@ type RegisterResponse struct {
 	Token string         `json:"token"`
 }
 
+// That handles user registration.
+// It parses the request body, validates the input using a validator, checks if the username is already taken,
+// creates a new user in the database with hashed password, and generates a JWT token upon successful registration.
+// It returns a JSON response with the created user and the generated token.
+//
+// Usage:
+//
+//	app.Post("/register", s.register)
 func (s *Server) register(c *fiber.Ctx) error {
 	body := new(RegisterBody)
 	if err := c.BodyParser(body); err != nil {

@@ -12,17 +12,21 @@ type PostsResponse struct {
 	Posts []entities.Post `json:"posts"`
 }
 
+// That retrieves posts with the specified status.
+// It queries the database for posts with the given status and sends a JSON response with the retrieved posts.
+//
+// Usage:
+//
+//	app.Get("/posts/:status", s.getPosts(entities.PostStatus))
 func (s *Server) getPosts(status entities.PostStatus) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		res, err := s.posts.Find(c.Context(), bson.D{{Key: "status", Value: status}})
-
 		if err != nil {
 			return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 		}
 
 		posts := []entities.Post{}
-
 		if err := res.All(c.Context(), &posts); err != nil {
 			return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, err.Error())
 		}

@@ -25,6 +25,12 @@ type Payload struct {
 	Id string
 }
 
+// Sign generates a JWT (JSON Web Token) string by signing the provided payload using the specified secret key.
+// It uses the HMAC SHA-256 (HS256) signing method and includes an expiration time of 24 hours in the token payload.
+//
+// Usage:
+//
+//	token, err := Sign(&Payload{Id: "user123"}, []byte("secretKey"))
 func Sign(payload *Payload, secretKey []byte) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim{payload.Id, jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24))}})
 
@@ -33,15 +39,11 @@ func Sign(payload *Payload, secretKey []byte) (string, error) {
 	return tokenString, err
 }
 
-func Decode(token string, secretKey []byte) (*CustomClaim, error) {
-	jwtToken, err := jwt.ParseWithClaims(token, &CustomClaim{}, func(t *jwt.Token) (interface{}, error) { return secretKey, nil })
-	if err != nil {
-		return nil, err
-	}
-
-	return jwtToken.Claims.(*CustomClaim), nil
-}
-
+// Hash generates a bcrypt hash from the provided content using a cost factor of 10.
+//
+// Usage:
+//
+//	hashedContent := Hash("mySecretPassword")
 func Hash(content string) []byte {
 	hash, err := bcrypt.GenerateFromPassword([]byte(content), 10)
 	errors.Must(err)
@@ -49,6 +51,12 @@ func Hash(content string) []byte {
 	return hash
 }
 
+// Verify compares a bcrypt hash with a plaintext value to check if they match.
+// It uses the bcrypt.CompareHashAndPassword function for secure comparison.
+//
+// Usage:
+//
+//	err := Verify(hashedPassword, userInput)
 func Verify(hash []byte, compareValue []byte) error {
 	return bcrypt.CompareHashAndPassword(hash, compareValue)
 }

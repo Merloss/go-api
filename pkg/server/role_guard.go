@@ -12,6 +12,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// That checks if the user has the required roles.
+// It retrieves the user ID from the JWT token, queries the database for the user's roles,
+// and compares them against the required roles. If the user has the necessary roles, it allows
+// the request to proceed; otherwise, it returns a "Bad Request" error indicating insufficient permission.
+//
+// Usage:
+//
+//	app.Get("/protected", s.roleGuard(auth.ADMIN, auth.EDITOR), s.protectedEndpoint)
 func (s *Server) roleGuard(roles ...auth.Role) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		token := c.Locals("user").(*jwt.Token)
@@ -42,6 +50,13 @@ func (s *Server) roleGuard(roles ...auth.Role) fiber.Handler {
 	}
 }
 
+// It checks whether a given set of user flags contains all the specified flags.
+//
+// Usage:
+//
+//	userFlags := []auth.Role{auth.Admin, auth.Editor}
+//	requiredFlags := []auth.Role{auth.Admin, auth.Editor}
+//	result := HasAllFields(userFlags, requiredFlags) // Returns true
 func HasAllFields(userFlags []auth.Role, flags []auth.Role) bool {
 	for _, field := range flags {
 		found := false

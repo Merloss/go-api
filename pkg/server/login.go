@@ -20,6 +20,14 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
+// That handles user login.
+// It parses the request body, validates the input using a validator, queries the database for the user,
+// verifies the provided password against the stored password hash, and generates a JWT token upon successful login.
+// It returns a JSON response with the generated token.
+//
+// Usage:
+//
+//	app.Post("/login", s.login)
 func (s *Server) login(c *fiber.Ctx) error {
 	body := new(LoginBody)
 	if err := c.BodyParser(body); err != nil {

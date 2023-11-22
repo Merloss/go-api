@@ -8,6 +8,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// That deletes a post based on the provided post ID.
+// It parses the post ID from the request parameters, converts it to a primitive.ObjectID, and deletes the post from the database.
+// It returns a success message if the deletion is successful.
+//
+// Usage:
+//
+//	app.Delete("/posts/:id", s.deletePost)
 func (s *Server) deletePost(c *fiber.Ctx) error {
 	id := c.Params("id")
 

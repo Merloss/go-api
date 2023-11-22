@@ -22,6 +22,15 @@ type UpdatePostResponse struct {
 	Post *entities.Post `json:"post"`
 }
 
+// That updates a post based on the provided post ID.
+// It retrieves the user information from the Fiber context, parses the post ID from the request parameters,
+// parses the request body, validates the input using a validator, and updates the post in the database.
+// The update includes changes to the title, description and status fields, with additional permissions for admin users.
+// It returns a JSON response with the updated post.
+//
+// Usage:
+//
+//	app.Put("/posts/:id", s.editPost)
 func (s *Server) editPost(c *fiber.Ctx) error {
 
 	user := c.Locals("user").(*entities.User)

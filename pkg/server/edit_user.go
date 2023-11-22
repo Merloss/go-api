@@ -20,6 +20,13 @@ type UpdateUserResponse struct {
 	User UpdateUserBody `json:"user"`
 }
 
+// Updates a user's information based on the provided request body.
+// It parses the user ID from the request parameters, parses the request body, validates the input using a validator,
+// and updates the user information in the database. Upon successful update, it returns a JSON response with the updated user.
+//
+// Usage:
+//
+//	app.Put("/users/:id", s.editUser)
 func (s *Server) editUser(c *fiber.Ctx) error {
 	userId := c.Params("id")
 

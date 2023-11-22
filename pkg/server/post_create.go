@@ -17,6 +17,13 @@ type CreatePostResponse struct {
 	Post *entities.Post `json:"post"`
 }
 
+// That creates a new post based on the provided request body.
+// It parses the request body, validates the input using a validator, and inserts the post into the database.
+// Upon successful creation, it returns a JSON response with the created post.
+//
+// Usage:
+//
+//	app.Post("/posts", s.createPost)
 func (s *Server) createPost(c *fiber.Ctx) error {
 	body := new(CreatePostBody)
 	if err := c.BodyParser(body); err != nil {
