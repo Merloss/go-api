@@ -1,8 +1,10 @@
 package server
 
 import (
+	"go-api/pkg/auth"
 	"go-api/pkg/entities"
 	"go-api/pkg/errors"
+	"slices"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +15,7 @@ import (
 type UpdatePostBody struct {
 	Title       string `json:"title" validate:"required,alpha,min=2,max=30"`
 	Description string `json:"description" validate:"required,min=20,max=200"`
+	Status      string `json:"status"`
 }
 
 type UpdatePostResponse struct {
@@ -20,6 +23,8 @@ type UpdatePostResponse struct {
 }
 
 func (s *Server) editPost(c *fiber.Ctx) error {
+
+	user := c.Locals("user").(*entities.User)
 	id := c.Params("id")
 
 	body := new(UpdatePostBody)
@@ -39,8 +44,21 @@ func (s *Server) editPost(c *fiber.Ctx) error {
 			Value: bson.D{
 				{Key: "title", Value: body.Title},
 				{Key: "description", Value: body.Description},
+				{Key: "status", Value: entities.PENDING},
 			},
 		},
+	}
+
+	if slices.Contains(user.Roles, auth.ADMIN) {
+		update = bson.D{
+			{Key: "$set",
+				Value: bson.D{
+					{Key: "title", Value: body.Title},
+					{Key: "description", Value: body.Description},
+					{Key: "status", Value: body.Status},
+				},
+			},
+		}
 	}
 
 	oid, err := primitive.ObjectIDFromHex(id)
