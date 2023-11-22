@@ -12,8 +12,8 @@ import (
 
 type UpdateUserBody struct {
 	Id       string      `json:"id,omitempty"`
-	Roles    []auth.Role `json:"roles"`
-	Username string      `json:"username"`
+	Roles    []auth.Role `json:"roles,omitempty"`
+	Username string      `json:"username,omitempty"`
 }
 
 type UpdateUserResponse struct {
