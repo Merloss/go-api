@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type PostsResponse struct {
@@ -20,8 +21,12 @@ type PostsResponse struct {
 //	app.Get("/posts/:status", s.getPosts(entities.PostStatus))
 func (s *Server) getPosts(status entities.PostStatus) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		itemsPerPage := c.QueryInt("itemsPerPage", 10)
+		page := c.QueryInt("page", 1)
+		skip := int64(page*itemsPerPage - itemsPerPage)
+		limit := int64(itemsPerPage)
 
-		res, err := s.posts.Find(c.Context(), bson.D{{Key: "status", Value: status}})
+		res, err := s.posts.Find(c.Context(), bson.D{{Key: "status", Value: status}}, &options.FindOptions{Skip: &skip, Limit: &limit})
 		if err != nil {
 			return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 		}
