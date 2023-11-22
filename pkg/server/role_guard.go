@@ -29,6 +29,7 @@ func (s *Server) roleGuard(roles ...auth.Role) fiber.Handler {
 		res.Decode(user)
 
 		if slices.Contains(user.Roles, auth.ADMIN) {
+			c.Locals("user", user)
 			return c.Next()
 		}
 
