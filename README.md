@@ -134,3 +134,11 @@ Start the server
 | :--------- | :--------- | :------------ |
 | `username` | `string`   | User username |
 | `roles`    | `string[]` | User roles    |
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+  go test ./...
+```
