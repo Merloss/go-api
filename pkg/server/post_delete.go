@@ -23,7 +23,6 @@ func (s *Server) deletePost(c *fiber.Ctx) error {
 	if err != nil {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
-
 	err = s.posts.FindOneAndDelete(c.Context(), bson.D{{Key: "_id", Value: oid}}).Err()
 
 	if err != nil {

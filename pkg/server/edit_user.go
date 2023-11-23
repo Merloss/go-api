@@ -11,13 +11,12 @@ import (
 )
 
 type UpdateUserBody struct {
-	Id       string      `json:"id,omitempty"`
 	Roles    []auth.Role `json:"roles,omitempty"`
 	Username string      `json:"username,omitempty"`
 }
 
 type UpdateUserResponse struct {
-	User UpdateUserBody `json:"user"`
+	User *entities.User `json:"user"`
 }
 
 // Updates a user's information based on the provided request body.
@@ -30,12 +29,12 @@ type UpdateUserResponse struct {
 func (s *Server) editUser(c *fiber.Ctx) error {
 	userId := c.Params("id")
 
-	body := new(UpdateUserBody)
-	if err := c.BodyParser(body); err != nil {
+	var body UpdateUserBody
+	if err := c.BodyParser(&body); err != nil {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
 
-	err := s.validator.Struct(body)
+	err := s.validator.Struct(&body)
 	if err != nil {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
@@ -48,14 +47,11 @@ func (s *Server) editUser(c *fiber.Ctx) error {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
 
-	res := s.users.FindOneAndUpdate(c.Context(), bson.D{{Key: "_id", Value: oid}}, bson.D{{Key: "$set", Value: bson.D{{Key: "roles", Value: body.Roles}, {Key: "username", Value: body.Username}}}})
+	err = s.users.FindOneAndUpdate(c.Context(), bson.D{{Key: "_id", Value: oid}}, bson.D{{Key: "$set", Value: bson.D{{Key: "roles", Value: body.Roles}, {Key: "username", Value: body.Username}}}}).Decode(user)
 
-	err = res.Err()
 	if err != nil {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
 
-	res.Decode(user)
-
-	return c.JSON(UpdateUserResponse{*body})
+	return c.JSON(UpdateUserResponse{user})
 }
