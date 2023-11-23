@@ -17,7 +17,7 @@ func main() {
 	db, err := db.Connect(os.Getenv("DB_URI"), os.Getenv("DB_NAME"))
 	errors.Must(err)
 
-	srv := server.New(db)
+	srv := server.New(server.Config{Users: db.Collection("users"), Posts: db.Collection("posts")})
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)

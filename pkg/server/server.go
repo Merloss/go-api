@@ -22,7 +22,12 @@ type Server struct {
 	posts     *mongo.Collection
 }
 
-func New(db *mongo.Database) *Server {
+type Config struct {
+	Users *mongo.Collection
+	Posts *mongo.Collection
+}
+
+func New(config Config) *Server {
 	app := fiber.New()
 	app.Use(requestid.New(requestid.Config{
 		ContextKey: "requestId",
@@ -34,10 +39,7 @@ func New(db *mongo.Database) *Server {
 
 	validator := validator.New()
 
-	users := db.Collection("users")
-	contents := db.Collection("posts")
-
-	s := &Server{app, validator, users, contents}
+	s := &Server{app, validator, config.Users, config.Posts}
 	s.init()
 
 	return s
@@ -64,7 +66,7 @@ func (s *Server) init() {
 	posts.Delete("/:id", jwtware, s.roleGuard(_auth.ADMIN), s.deletePost)
 	posts.Get("/pending", jwtware, s.roleGuard(_auth.ADMIN), s.getPosts(entities.PENDING))
 
-	users.Post("/:id/edit", jwtware, s.roleGuard(_auth.ADMIN), s.editUser)
+	users.Patch("/:id/edit", jwtware, s.roleGuard(_auth.ADMIN), s.editUser)
 }
 
 func (s *Server) Listen(port string) error {

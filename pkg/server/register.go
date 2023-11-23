@@ -33,7 +33,7 @@ type RegisterResponse struct {
 func (s *Server) register(c *fiber.Ctx) error {
 	body := new(RegisterBody)
 	if err := c.BodyParser(body); err != nil {
-		return c.Status(400).SendString(err.Error())
+		return errors.NewHttpError(c, errors.BAD_REQUEST, err.Error())
 	}
 
 	err := s.validator.Struct(body)
@@ -63,7 +63,7 @@ func (s *Server) register(c *fiber.Ctx) error {
 
 	user.Id = res.InsertedID.(primitive.ObjectID).Hex()
 
-	token, err := auth.Sign(&auth.Payload{Id: user.Id}, []byte(os.Getenv("JWT_SECRET")))
+	token, err := auth.Sign(&auth.Payload{Id: user.Id}, []byte(os.Getenv("JWT_SECRET")), nil)
 	if err != nil {
 		log.Println(err)
 		return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, "there is an error while signing your token")

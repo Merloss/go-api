@@ -50,7 +50,7 @@ func (s *Server) login(c *fiber.Ctx) error {
 		return errors.NewHttpError(c, errors.BAD_REQUEST, "invalid password")
 	}
 
-	token, err := auth.Sign(&auth.Payload{Id: user.Id}, []byte(os.Getenv("JWT_SECRET")))
+	token, err := auth.Sign(&auth.Payload{Id: user.Id}, []byte(os.Getenv("JWT_SECRET")), nil)
 	if err != nil {
 		log.Println(err)
 		return errors.NewHttpError(c, errors.INTERNAL_SERVER_ERROR, "there is an error while signing your token")

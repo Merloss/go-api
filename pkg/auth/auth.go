@@ -30,13 +30,30 @@ type Payload struct {
 //
 // Usage:
 //
-//	token, err := Sign(&Payload{Id: "user123"}, []byte("secretKey"))
-func Sign(payload *Payload, secretKey []byte) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim{payload.Id, jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24))}})
+//	token, err := Sign(&Payload{Id: "user123"}, []byte("secretKey"), nil | jwt.NewNumericDate(time.Now().Add(time.Hour * 24)))
+func Sign(payload *Payload, secretKey []byte, expireDate *jwt.NumericDate) (string, error) {
+	if expireDate == nil {
+		expireDate = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim{payload.Id, jwt.RegisteredClaims{ExpiresAt: expireDate}})
 
 	tokenString, err := token.SignedString(secretKey)
 
 	return tokenString, err
+}
+
+// Decode decodes a JWT (JSON Web Token) string and returns the custom claims embedded in the token.
+// It uses jwt.NewParser().ParseUnverified to parse the token without signature verification.
+//
+// Usage:
+//
+//	claims, err := Decode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImtlcmltIn0.2jQNUGK5Hy5cudGvUVVyX9goazh_BASroXksdOV9HzI")
+func Decode(token string) (*CustomClaim, error) {
+	jwtToken, _, err := jwt.NewParser().ParseUnverified(token, &CustomClaim{})
+	if err != nil {
+		return nil, err
+	}
+	return jwtToken.Claims.(*CustomClaim), nil
 }
 
 // Hash generates a bcrypt hash from the provided content using a cost factor of 10.

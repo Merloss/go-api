@@ -1,6 +1,8 @@
 package entities
 
-import "go-api/pkg/auth"
+import (
+	"go-api/pkg/auth"
+)
 
 type User struct {
 	Id       string      `json:"id,omitempty" bson:"_id,omitempty"`
