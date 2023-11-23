@@ -2,7 +2,7 @@
 
 This api is a security-focused system that combines role-based authentication, streamlined CRUD operations (Create, Read, Update, Delete), and efficient user management. It empowers administrators to control access based on user roles while providing a seamless experience for data manipulation and user interactions.
 
-## Architecture overview
+## Architecture Overview
 
 ```bash
 ├───cmd
